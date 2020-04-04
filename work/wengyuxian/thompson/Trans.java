@@ -9,4 +9,9 @@ public class Trans {
         this.stateTo = v2;
         this.transSymbol = sym;
     }
+
+    @Override
+    public String toString() {
+        return String.format("(%3d ,%3c ,%3d)\n", stateFrom, transSymbol, stateTo);
+    }
 }

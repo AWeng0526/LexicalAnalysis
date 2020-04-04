@@ -2,9 +2,9 @@ package work.wengyuxian.thompson;
 
 public class Vertex {
 
-    int state;
-    boolean isFinal;
-    String type;
+    public int state;
+    public boolean isFinal;
+    public String type;
 
     public Vertex(int aState) {
         state = aState;
