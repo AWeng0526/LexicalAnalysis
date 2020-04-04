@@ -11,19 +11,6 @@ import work.wengyuxian.util.*;
 
 public class Thompson {
 
-    private static HashSet<Character> alphas = new HashSet<Character>() {
-        {
-            add('_');
-            add('.');
-            add('+');
-            add('-');
-            add('/');
-            add('&');
-            add('!');
-            add('\\');
-        }
-    };
-
     /*
      * kleene() - Highest Precedence regular expression operator. Thompson algoritm
      * for kleene star.
@@ -64,8 +51,8 @@ public class Thompson {
         }
 
         // take m and combine to n after erasing inital m state
-        for (Integer s : m.states) {
-            n.states.add(s + n.states.size() + 1);
+        for (Vertex s : m.states) {
+            n.states.add(new Vertex(s.state + n.finalState));
         }
 
         n.finalState = n.states.size() + m.states.size() - 2;
@@ -80,6 +67,42 @@ public class Thompson {
             return m;
         }
         NFA result = new NFA(n.states.size() + m.states.size() + 2);
+
+        // 多个NFA合并时要保留终态
+
+        for (int i : n.finalStates) {
+            Vertex vertex = n.states.get(i);
+            int newIdx = vertex.state + 1;
+            Vertex newFinal = result.states.get(newIdx);
+            result.finalStates.add(newIdx);
+            newFinal.isFinal = true;
+            newFinal.type = vertex.type;
+        }
+        for (int i : m.finalStates) {
+            Vertex vertex = m.states.get(i);
+            int newIdx = vertex.state + n.finalState + 2;
+            Vertex newFinal = result.states.get(newIdx);
+            result.finalStates.add(newIdx);
+            newFinal.isFinal = true;
+            newFinal.type = vertex.type;
+        }
+
+        // 时间复杂度高
+        // for (Vertex vertex : n.states) {
+        // if (vertex.isFinal && vertex.type != null) {
+        // Vertex newNFinal = result.states.get(vertex.state + 1);
+        // newNFinal.isFinal = true;
+        // newNFinal.type = vertex.type;
+        // }
+        // }
+
+        // for (Vertex vertex : m.states) {
+        // if (vertex.isFinal && vertex.type != null) {
+        // Vertex newMFinal = result.states.get(vertex.state + n.finalState + 2);
+        // newMFinal.isFinal = true;
+        // newMFinal.type = vertex.type;
+        // }
+        // }
 
         // 新增起点
         result.transitions.add(new Trans(0, 1, '#'));
@@ -105,7 +128,7 @@ public class Thompson {
         result.transitions
                 .add(new Trans(m.states.size() + n.states.size(), n.states.size() + m.states.size() + 1, '#'));
 
-        // 计算终态,汤普森算法得到的NFA只有一个终态
+        // 计算终态
         result.finalState = n.states.size() + m.states.size() + 1;
         return result;
     }
@@ -117,8 +140,7 @@ public class Thompson {
      * @return
      */
     public static boolean alphabet(char c) {
-        return (c == '#') || (c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z') || (c >= '0' && c <= '9')
-                || alphas.contains(c);
+        return Alpahas.alpahas.contains(c);
     }
 
     /**
@@ -180,6 +202,10 @@ public class Thompson {
         for (int i = 0; i < regex.length(); i++) {
             c = regex.charAt(i);
             if (escape) {
+                if (!alphabet(c)) {
+                    Logger.getGlobal().warning("错误字符:" + c);
+                    return null;
+                }
                 operands.push(new NFA(c));
                 if (concatFlag) {
                     operators.push('$'); // '$'为连接标识符
@@ -189,7 +215,7 @@ public class Thompson {
                 escape = false;
             } else if (c == '\\') {
                 escape = true;
-            } else if (alphabet(c)) {
+            } else if (!regexOperator(c) && alphabet(c)) {
                 operands.push(new NFA(c));
                 if (concatFlag) {
                     operators.push('$'); // '$'为连接标识符
@@ -284,10 +310,16 @@ public class Thompson {
         for (Pair<String, String> pair : res) {
             NFA tmp = compile(pair.getValue());
             if (tmp == null) {
+                Logger.getGlobal().warning(String.format("NFA %s 解析结果异常", pair.getValue()));
                 return null;
             }
+            Vertex finalState = tmp.states.get(tmp.finalState);
+            finalState.isFinal = true;
+            finalState.type = pair.getKey();
+            tmp.finalStates.add(tmp.finalState);
             nfa = union(nfa, tmp);
         }
+        nfa.finalStates.add(nfa.finalState);
         return nfa;
     }
 

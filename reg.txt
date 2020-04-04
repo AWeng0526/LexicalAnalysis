@@ -1,2 +1,3 @@
-ID  {letter}({letter}|_)*
-NUMBER {digit}*{digit}
+ID a*b
+ID2 C*D
+NUMBER (1|2)*
