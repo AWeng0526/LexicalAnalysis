@@ -1,0 +1,2 @@
+ID  {letter}({letter}|_)*
+NUMBER {digit}*{digit}
