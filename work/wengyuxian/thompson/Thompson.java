@@ -2,136 +2,12 @@
 package work.wengyuxian.thompson;
 
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.Stack;
 import java.util.logging.Logger;
-
 import javafx.util.Pair;
 import work.wengyuxian.util.*;
 
 public class Thompson {
-
-    /*
-     * kleene() - Highest Precedence regular expression operator. Thompson algoritm
-     * for kleene star.
-     */
-    public static NFA kleene(NFA n) {
-        NFA result = new NFA(n.states.size() + 2);
-        result.transitions.add(new Trans(0, 1, '#')); // new trans for q0
-
-        // copy existing transisitons
-        for (Trans t : n.transitions) {
-            result.transitions.add(new Trans(t.stateFrom + 1, t.stateTo + 1, t.transSymbol));
-        }
-
-        // add empty transition from final n state to new final state.
-        result.transitions.add(new Trans(n.states.size(), n.states.size() + 1, '#'));
-
-        // Loop back from last state of n to initial state of n.
-        result.transitions.add(new Trans(n.states.size(), 1, '#'));
-
-        // Add empty transition from new initial state to new final state.
-        result.transitions.add(new Trans(0, n.states.size() + 1, '#'));
-
-        result.finalState = n.states.size() + 1;
-        return result;
-    }
-
-    /*
-     * concat() - Thompson algorithm for concatenation. Middle Precedence.
-     */
-    public static NFA concat(NFA n, NFA m) {
-        /// *
-        m.states.remove(0); // delete m's initial state
-
-        // copy NFA m's transitions to n, and handles connecting n & m
-        for (Trans t : m.transitions) {
-            n.transitions
-                    .add(new Trans(t.stateFrom + n.states.size() - 1, t.stateTo + n.states.size() - 1, t.transSymbol));
-        }
-
-        // take m and combine to n after erasing inital m state
-        for (Vertex s : m.states) {
-            n.states.add(new Vertex(s.state + n.finalState));
-        }
-
-        n.finalState = n.states.size() + m.states.size() - 2;
-        return n;
-    }
-
-    public static NFA union(NFA m, NFA n) {
-        if (m.finalState == 0) {
-            return n;
-        }
-        if (n.finalState == 0) {
-            return m;
-        }
-        NFA result = new NFA(n.states.size() + m.states.size() + 2);
-
-        // 多个NFA合并时要保留终态
-
-        for (int i : n.finalStates) {
-            Vertex vertex = n.states.get(i);
-            int newIdx = vertex.state + 1;
-            Vertex newFinal = result.states.get(newIdx);
-            result.finalStates.add(newIdx);
-            newFinal.isFinal = true;
-            newFinal.type = vertex.type;
-        }
-        for (int i : m.finalStates) {
-            Vertex vertex = m.states.get(i);
-            int newIdx = vertex.state + n.finalState + 2;
-            Vertex newFinal = result.states.get(newIdx);
-            result.finalStates.add(newIdx);
-            newFinal.isFinal = true;
-            newFinal.type = vertex.type;
-        }
-
-        // 时间复杂度高
-        // for (Vertex vertex : n.states) {
-        // if (vertex.isFinal && vertex.type != null) {
-        // Vertex newNFinal = result.states.get(vertex.state + 1);
-        // newNFinal.isFinal = true;
-        // newNFinal.type = vertex.type;
-        // }
-        // }
-
-        // for (Vertex vertex : m.states) {
-        // if (vertex.isFinal && vertex.type != null) {
-        // Vertex newMFinal = result.states.get(vertex.state + n.finalState + 2);
-        // newMFinal.isFinal = true;
-        // newMFinal.type = vertex.type;
-        // }
-        // }
-
-        // 新增起点
-        result.transitions.add(new Trans(0, 1, '#'));
-
-        // 复制n中状态转移
-        for (Trans t : n.transitions) {
-            result.transitions.add(new Trans(t.stateFrom + 1, t.stateTo + 1, t.transSymbol));
-        }
-
-        // 将n中终态转移至新终态
-        result.transitions.add(new Trans(n.states.size(), n.states.size() + m.states.size() + 1, '#'));
-
-        // 新起点连接至m起点
-        result.transitions.add(new Trans(0, n.states.size() + 1, '#'));
-
-        // 复制m中状态转移,所有编号需要偏移,偏移量为n中数量+1
-        int offset = n.states.size() + 1;
-        for (Trans t : m.transitions) {
-            result.transitions.add(new Trans(t.stateFrom + offset, t.stateTo + offset, t.transSymbol));
-        }
-
-        // m的终态转移至新终态
-        result.transitions
-                .add(new Trans(m.states.size() + n.states.size(), n.states.size() + m.states.size() + 1, '#'));
-
-        // 计算终态
-        result.finalState = n.states.size() + m.states.size() + 1;
-        return result;
-    }
 
     /**
      * 判断字符是否在字母表中,#代表空串
@@ -144,7 +20,7 @@ public class Thompson {
     }
 
     /**
-     * 判断字符是否是正规式表达式
+     * 判断字符是否是运算符
      * 
      * @param c 需判断的字符
      * @return
@@ -179,6 +55,130 @@ public class Thompson {
     }
 
     /**
+     * *闭包
+     * 
+     * @param n 操作数
+     * @return 返回*闭包的结果
+     */
+    public static NFA kleene(NFA n) {
+        // 构造新NFA,因为增添新初态终态,故容量+2
+        NFA result = new NFA(n.states.size() + 2);
+        // 添加新初态
+        result.transitions.add(new Trans(0, 1, '#'));
+
+        // 复制已有状态转移
+        for (Trans t : n.transitions) {
+            result.transitions.add(new Trans(t.stateFrom + 1, t.stateTo + 1, t.transSymbol));
+        }
+
+        // 将原来终态指向新终态
+        result.transitions.add(new Trans(n.states.size(), n.states.size() + 1, '#'));
+
+        // 添加剩余两条状态转移
+        result.transitions.add(new Trans(n.states.size(), 1, '#'));
+        result.transitions.add(new Trans(0, n.states.size() + 1, '#'));
+
+        // 设置新的终态结点索引 n.states.size()+2-1
+        result.finalState = n.states.size() + 1;
+        return result;
+    }
+
+    /**
+     * NFA的连接运算
+     * 
+     * @param n 操作数
+     * @param m 操作数
+     * @return 返回n.m的结果
+     */
+    public static NFA concat(NFA n, NFA m) {
+        // 删除m的初态(与n的终态合并)
+        m.states.remove(0);
+
+        // 复制m中状态转移
+        for (Trans t : m.transitions) {
+            n.transitions
+                    .add(new Trans(t.stateFrom + n.states.size() - 1, t.stateTo + n.states.size() - 1, t.transSymbol));
+        }
+
+        // 复制m中顶点,state需加上一个偏移量,偏移量=n.finalState
+        for (Vertex s : m.states) {
+            n.states.add(new Vertex(s.state + n.finalState));
+        }
+
+        // 计算新的终态索引
+        n.finalState = n.finalState + m.finalState;
+        return n;
+    }
+
+    /**
+     * |运算
+     * 
+     * @param m 操作数
+     * @param n 操作数
+     * @return m|n的运算结果
+     */
+    public static NFA union(NFA m, NFA n) {
+        // 若有空NFA,直接返回另一NFA即可
+        if (m.finalState == 0) {
+            return n;
+        }
+        if (n.finalState == 0) {
+            return m;
+        }
+
+        // |运算生成的新NFA中会新增两个状态(新初态,新终态)
+        NFA result = new NFA(n.states.size() + m.states.size() + 2);
+
+        /**
+         * 多个NFA合并时要保留终态 这里考虑到多个正规式合并时需保留终态信息 只有正规式的NFA.finalStates有元素
+         */
+        for (int i : n.finalStates) {
+            Vertex vertex = n.states.get(i);
+            int newIdx = vertex.state + 1;
+            Vertex newFinal = result.states.get(newIdx);
+            result.finalStates.add(newIdx);
+            newFinal.isFinal = true;
+            newFinal.type = vertex.type;
+        }
+        for (int i : m.finalStates) {
+            Vertex vertex = m.states.get(i);
+            int newIdx = vertex.state + n.finalState + 2;
+            Vertex newFinal = result.states.get(newIdx);
+            result.finalStates.add(newIdx);
+            newFinal.isFinal = true;
+            newFinal.type = vertex.type;
+        }
+
+        // 新增初态,同时该初态指向n初态
+        result.transitions.add(new Trans(0, 1, '#'));
+
+        // 复制n中状态转移
+        for (Trans t : n.transitions) {
+            result.transitions.add(new Trans(t.stateFrom + 1, t.stateTo + 1, t.transSymbol));
+        }
+
+        // 将n中终态指向新终态
+        result.transitions.add(new Trans(n.states.size(), n.states.size() + m.states.size() + 1, '#'));
+
+        // 新初态连接至m初态
+        result.transitions.add(new Trans(0, n.states.size() + 1, '#'));
+
+        // 复制m中状态转移,所有编号需要偏移,偏移量为n中数量+1
+        int offset = n.states.size() + 1;
+        for (Trans t : m.transitions) {
+            result.transitions.add(new Trans(t.stateFrom + offset, t.stateTo + offset, t.transSymbol));
+        }
+
+        // m的终态转移至新终态
+        result.transitions
+                .add(new Trans(m.states.size() + n.states.size(), n.states.size() + m.states.size() + 1, '#'));
+
+        // 计算新终态索引
+        result.finalState = n.states.size() + m.states.size() + 1;
+        return result;
+    }
+
+    /**
      * 根据正规式翻译出NFA
      * 
      * @param regex 正规式
@@ -201,91 +201,99 @@ public class Thompson {
 
         for (int i = 0; i < regex.length(); i++) {
             c = regex.charAt(i);
-            if (escape) {
-                if (!alphabet(c)) {
+            if (escape) { // 如果转义
+                if (!alphabet(c)) {// 检查是否在字母表中
                     Logger.getGlobal().warning("错误字符:" + c);
                     return null;
                 }
                 operands.push(new NFA(c));
+                // 默认行为是连接运算
                 if (concatFlag) {
-                    operators.push('$'); // '$'为连接标识符
+                    operators.push('.'); // '.'为连接标识符
                 } else {
                     concatFlag = true;
                 }
+                // 转义结束
                 escape = false;
-            } else if (c == '\\') {
+            } else if (c == '\\') {// 开始转义
                 escape = true;
-            } else if (!regexOperator(c) && alphabet(c)) {
-                operands.push(new NFA(c));
+            } else if (!regexOperator(c) && alphabet(c)) {// 如果是字母表中字符
+                operands.push(new NFA(c));// 操作数入栈
                 if (concatFlag) {
-                    operators.push('$'); // '$'为连接标识符
+                    operators.push('.'); // '.'为连接标识符
                 } else {
                     concatFlag = true;
                 }
-            } else {
-                if (c == ')') {
+            } else {// 之前是操作数相关操作,现在开始操作符相关操作
+                if (c == '*') {// 操作数出栈,求*闭包后入栈
+                    operands.push(kleene(operands.pop()));
+                    concatFlag = true;
+                } else if (c == '(') {// 操作符入栈,计数器+1
+                    operators.push(c);
+                    unpairedBracketCount++;
+                } else if (c == '|') {// 操作符入栈,停止连接运算
+                    operators.push(c);
                     concatFlag = false;
-                    if (unpairedBracketCount == 0) {
-                        System.out.println("Error: More end paranthesis " + "than beginning paranthesis");
-                        System.exit(1);
+                } else if (c == ')') {// 计算(...)中所有表达式
+                    concatFlag = false;// 停止连接运算
+                    if (unpairedBracketCount == 0) {// 检查括号是否匹配
+                        Logger.getGlobal().warning("括号不匹配");
+                        return null;
                     } else {
                         unpairedBracketCount--;
                     }
-                    // process stuff on stack till '('
+                    // 将所有操作符出栈,直到"("
+                    // 严格来说,不需要判断非空,因为已经完成了"("的检验,所以一定会在栈空之前结束
                     while (!operators.empty() && operators.peek() != '(') {
-                        op = operators.pop();
-                        if (op == '$') {
+                        op = operators.pop();// 弹出操作符
+                        if (op == '.') {// 连接运算
                             nfa2 = operands.pop();
                             nfa1 = operands.pop();
                             operands.push(concat(nfa1, nfa2));
-                        } else if (op == '|') {
+                        } else if (op == '|') {// |运算
+                            // nfa1 nfa2代表|运算左右的操作数,即 nfa1 | nfa2
                             nfa2 = operands.pop();
-
-                            if (!operators.empty() && operators.peek() == '$') {
-
+                            // 由于|运算优先级高于.,所以可能出现 a.b.c.d|e.f.g的情况
+                            if (!operators.empty() && operators.peek() == '.') {
+                                // 将所有需连接的NFA入栈
                                 concatStack.push(operands.pop());
-                                while (!operators.empty() && operators.peek() == '$') {
-
+                                while (!operators.empty() && operators.peek() == '.') {
                                     concatStack.push(operands.pop());
                                     operators.pop();
                                 }
+                                // 进行连接操作
                                 nfa1 = concat(concatStack.pop(), concatStack.pop());
                                 while (concatStack.size() > 0) {
                                     nfa1 = concat(nfa1, concatStack.pop());
                                 }
-                            } else {
+                            } else {// 还要考虑无.运算,例如 a|b
                                 nfa1 = operands.pop();
                             }
                             operands.push(union(nfa1, nfa2));
                         }
                     }
-                } else if (c == '*') {
-                    operands.push(kleene(operands.pop()));
-                    concatFlag = true;
-                } else if (c == '(') {
-                    operators.push(c);
-                    unpairedBracketCount++;
-                } else if (c == '|') {
-                    operators.push(c);
-                    concatFlag = false;
                 }
             }
         }
+        // 将所有操作数录入完成后,开始求值
+        // 如果觉得这部分内容与处理)部分内容类似过于冗余的话
+        // 也可以要求正规式必须用()圈起来,这样就不需要这段代码了
         while (operators.size() > 0) {
             if (operands.empty()) {
-                Logger.getGlobal().warning("括号不匹配");
+                // 如果有操作数而无操作符,记录错误信息
+                Logger.getGlobal().warning("符号不匹配");
                 return null;
             }
             op = operators.pop();
-            if (op == '$') {
+            if (op == '.') {
                 nfa2 = operands.pop();
                 nfa1 = operands.pop();
                 operands.push(concat(nfa1, nfa2));
             } else if (op == '|') {
                 nfa2 = operands.pop();
-                if (!operators.empty() && operators.peek() == '$') {
+                if (!operators.empty() && operators.peek() == '.') {
                     concatStack.push(operands.pop());
-                    while (!operators.empty() && operators.peek() == '$') {
+                    while (!operators.empty() && operators.peek() == '.') {
                         concatStack.push(operands.pop());
                         operators.pop();
                     }
@@ -302,24 +310,38 @@ public class Thompson {
         return operands.pop();
     }
 
+    /**
+     * 主调函数
+     * 
+     * @return 正规式求出的NFA
+     */
     public static NFA analyzeRe() {
         NFA nfa = new NFA();
+        // 默认路径为 ./reg.txt
         FileUtil f = new FileUtil();
         ArrayList<Pair<String, String>> res;
-        res = f.readNfa();
+        res = f.readReg();
         for (Pair<String, String> pair : res) {
+            // 正规式解析
             NFA tmp = compile(pair.getValue());
             if (tmp == null) {
                 Logger.getGlobal().warning(String.format("NFA %s 解析结果异常", pair.getValue()));
                 return null;
             }
+            // 给该正规式终态补充信息
             Vertex finalState = tmp.states.get(tmp.finalState);
             finalState.isFinal = true;
             finalState.type = pair.getKey();
+            // 多个正规式合并,需要记录所有的终态
             tmp.finalStates.add(tmp.finalState);
             nfa = union(nfa, tmp);
         }
-        nfa.finalStates.add(nfa.finalState);
+        // 如果是多个正规式合并,需要将新终态记录
+        // 可以不添加,因为该新终态只能通过其他终态空跳转抵达
+        // 故在转换成DFA过程中,这个新终态会与其他终态合并为一个状态集
+        if (res.size() > 1) {
+            nfa.finalStates.add(nfa.finalState);
+        }
         return nfa;
     }
 

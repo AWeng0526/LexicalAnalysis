@@ -4,6 +4,7 @@ import java.util.HashSet;
 
 public class Alpahas {
 
+    // 字母表
     public static HashSet<Character> alpahas = new HashSet<Character>() {
         {
             add('0');

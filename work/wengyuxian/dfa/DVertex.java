@@ -2,7 +2,9 @@ package work.wengyuxian.dfa;
 
 import java.util.HashSet;
 
-
+/**
+ * DVertex DFA中的顶点
+ */
 public class DVertex {
     public int id;
     public HashSet<Integer> states;

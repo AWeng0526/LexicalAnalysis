@@ -1,5 +1,8 @@
 package work.wengyuxian.thompson;
 
+/**
+ * Trans
+ */
 public class Trans {
     public int stateFrom, stateTo;
     public char transSymbol;

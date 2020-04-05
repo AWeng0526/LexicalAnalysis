@@ -1,4 +1,5 @@
 package work.wengyuxian.util;
+
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
@@ -20,7 +21,7 @@ import javafx.util.Pair;
 public class FileUtil {
     private String inputFilePath;
     private String outputFilePath;
-    private String regularExpression;
+    private String regularExpressionPath;
     public static final String digit = "(1|2|3|4|5|6|7|8|9)";
     public static final String letter = "(a|b|c|d|e|f|g|h|i|j|k|l|m|n|o|p|q|r|s|t|u|v|w|x|y|z)";
     Logger log = Logger.getGlobal();
@@ -31,7 +32,7 @@ public class FileUtil {
     public FileUtil() {
         inputFilePath = "./input.txt";
         outputFilePath = "./output.txt";
-        regularExpression = "./reg.txt";
+        regularExpressionPath = "./reg.txt";
     }
 
     /**
@@ -39,9 +40,10 @@ public class FileUtil {
      * @param input  读取文件路径
      * @param output 输出文件路径
      */
-    public FileUtil(String input, String output) {
+    public FileUtil(String input, String output, String reg) {
         inputFilePath = input;
         outputFilePath = output;
+        regularExpressionPath = reg;
     }
 
     /**
@@ -71,13 +73,18 @@ public class FileUtil {
         }
     }
 
-    public ArrayList<Pair<String, String>> readNfa() {
+    /**
+     * 读取正则表达式,正规式写法:名称 正规式.如果不符合洗发,将不会被读取
+     * 
+     * @return 所有的正则表达式集合 形式为[<名称,表示式>,<名称,表示式>...]
+     */
+    public ArrayList<Pair<String, String>> readReg() {
         ArrayList<Pair<String, String>> res = new ArrayList<Pair<String, String>>();
-        try (FileReader fileReader = new FileReader(regularExpression);
+        try (FileReader fileReader = new FileReader(regularExpressionPath);
                 BufferedReader br = new BufferedReader(fileReader);) {
             String line = null;
-            while ((line = br.readLine()) != null) {
-                String pattern = "(.*)\\s+(.*)";
+            while ((line = br.readLine()) != null) {// 读取每行
+                String pattern = "(.*)\\s+(.*)";// 正规式的写法为:名称 正规式,必须用空格分隔
                 Matcher m = Pattern.compile(pattern).matcher(line);
                 if (m.find()) {
                     String name = m.group(1);
@@ -87,7 +94,7 @@ public class FileUtil {
                 }
             }
         }
-        // 记录日志,继续抛出异常
+        // 记录日志
         catch (FileNotFoundException e) {
             log.throwing("work.wengyuxian.fileUtil.FileUtil", "readFile", e);
         } catch (IOException e) {

@@ -1,3 +1,1 @@
-ID a*b
-ID2 C*D
-NUMBER (1|2)*
+ID (a|b)*abb

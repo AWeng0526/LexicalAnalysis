@@ -31,33 +31,55 @@ public class DFA {
         first.states = getEpsilonTrans(tmpList);
         Dstates.add(first);
 
-        ListIterator<DVertex> iterator = Dstates.listIterator();
-        while (iterator.hasNext()) {
-            DVertex vertex = iterator.next();
+        for (int i = 0; i < Dstates.size(); i++) {
+            DVertex vertex = Dstates.get(i);
             for (Character c : Alpahas.alpahas) {
                 HashSet<Integer> transStates = getEpsilonTrans(smove(vertex, c));
                 if (transStates.size() > 0) {
                     DVertex newDVertex = new DVertex(cnt, transStates);
-                    if (!Dstates.contains(newDVertex)) {
+                    int idx = Dstates.indexOf(newDVertex);
+                    if (idx < 0) {
                         HashSet<Integer> finalStates = new HashSet<>();
                         finalStates.addAll(newDVertex.states);
                         finalStates.retainAll(nfa.finalStates);
-                        iterator.add(newDVertex);
-                        iterator.previous();
+                        Dstates.add(newDVertex);
                         Dtrans.add(new Trans(vertex.id, cnt, c));
                         cnt++;
+                    } else {
+                        Dtrans.add(new Trans(vertex.id, idx, c));
                     }
+
                 }
             }
+
         }
+
+        // ListIterator<DVertex> iterator = Dstates.listIterator();
+        // while (iterator.hasNext()) {
+        // DVertex vertex = iterator.next();
+        // for (Character c : Alpahas.alpahas) {
+        // HashSet<Integer> transStates = getEpsilonTrans(smove(vertex, c));
+        // if (transStates.size() > 0) {
+        // DVertex newDVertex = new DVertex(cnt, transStates);
+        // if (!Dstates.contains(newDVertex)) {
+        // HashSet<Integer> finalStates = new HashSet<>();
+        // finalStates.addAll(newDVertex.states);
+        // finalStates.retainAll(nfa.finalStates);
+        // iterator.add(newDVertex);
+        // iterator.previous();
+        // Dtrans.add(new Trans(vertex.id, cnt, c));
+        // cnt++;
+        // }
+        // }
+        // }
+        // }
 
         for (int i = 0; i < Dstates.size(); i++) {
             DVertex dVertex = Dstates.get(i);
             for (int j : dVertex.states) {
                 if (nfa.finalStates.contains(j)) {
                     dVertex.isFinal = true;
-                    dVertex.type = dVertex.type == null ? nfa.states.get(j).type
-                            : dVertex.type + nfa.states.get(j).type;
+                    dVertex.type = dVertex.type == null ? nfa.states.get(j).type : dVertex.type;
                 }
             }
 
@@ -97,10 +119,10 @@ public class DFA {
     @Override
     public String toString() {
         StringBuffer buffer = new StringBuffer();
-        buffer.append("结点:\n");
+        buffer.append("结点信息:\n");
         for (DVertex dVertex : Dstates) {
-            buffer.append(String.format("id:%3d  %10s 状态集:%s\n", dVertex.id,
-                    dVertex.isFinal ? "终态:" + dVertex.type : "非终态", dVertex.states.toString()));
+            buffer.append(String.format("id: %3d   %-12s 状态集:%s\n", dVertex.id, dVertex.isFinal ? dVertex.type : "---",
+                    dVertex.states));
         }
         buffer.append("状态转移:\n");
         for (Trans t : Dtrans) {

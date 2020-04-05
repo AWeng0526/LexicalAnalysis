@@ -1,18 +1,16 @@
 package work.wengyuxian.thompson;
 
 import java.util.ArrayList;
-import java.util.HashSet;
 
-import work.wengyuxian.thompson.*;
-
-/*
- * NFA - serves as the graph that represents the Non-Deterministic Finite
- * Automata. Will use this to better combine the states.
+/**
+ * NFA
  */
 public class NFA {
     public ArrayList<Vertex> states;
     public ArrayList<Trans> transitions;
+    // 对于一个正规式而言,只会有一个终态
     public int finalState;
+    // 算法需要将多个正规式做|运算,故会产生多个终态
     public ArrayList<Integer> finalStates = new ArrayList<>();
 
     public NFA() {
@@ -28,6 +26,11 @@ public class NFA {
         this.setStateSize(size);
     }
 
+    /**
+     * 初始化只有一个字符的正规式
+     * 
+     * @param c 正规式字符
+     */
     public NFA(char c) {
         this.states = new ArrayList<Vertex>();
         this.transitions = new ArrayList<Trans>();
@@ -36,11 +39,17 @@ public class NFA {
         this.transitions.add(new Trans(0, 1, c));
     }
 
+    /**
+     * 初始化状态集
+     * 
+     * @param size 状态集容量
+     */
     public void setStateSize(int size) {
         for (int i = 0; i < size; i++)
             this.states.add(new Vertex(i));
     }
 
+    @Override
     public String toString() {
         StringBuffer buffer = new StringBuffer();
         for (Vertex vertex : states) {
