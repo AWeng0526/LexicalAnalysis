@@ -2,10 +2,10 @@ package work.wengyuxian.util;
 
 import java.util.HashSet;
 
-public class Alpahas {
+public class Alphabets {
 
     // 字母表
-    public static HashSet<Character> alpahas = new HashSet<Character>() {
+    public static HashSet<Character> alphabets = new HashSet<Character>() {
         {
             add('0');
             add('1');
@@ -85,6 +85,9 @@ public class Alpahas {
             add(']');
             add('{');
             add('}');
+            add('>');
+            add('<');
+            add('=');
         }
     };
 }

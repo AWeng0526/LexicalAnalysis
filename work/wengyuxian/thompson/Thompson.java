@@ -9,6 +9,9 @@ import work.wengyuxian.util.*;
 
 public class Thompson {
 
+    public static final String digit = "(1|2|3|4|5|6|7|8|9)";
+    public static final String letter = "(a|b|c|d|e|f|g|h|i|j|k|l|m|n|o|p|q|r|s|t|u|v|w|x|y|z|A|B|C|D|E|F|G|H|I|J|K|L|M|N|O|P|Q|R|S|T|U|V|W|X|Y|Z|_)";
+
     /**
      * 判断字符是否在字母表中,#代表空串
      * 
@@ -16,7 +19,7 @@ public class Thompson {
      * @return
      */
     public static boolean alphabet(char c) {
-        return Alpahas.alpahas.contains(c);
+        return Alphabets.alphabets.contains(c);
     }
 
     /**
@@ -46,11 +49,14 @@ public class Thompson {
      * @return
      */
     public static boolean validRegEx(String regex) {
-        if (regex.isEmpty())
+        if (regex.isEmpty()) {
             return false;
+        }
         for (char c : regex.toCharArray())
-            if (!validRegExChar(c))
+            if (!validRegExChar(c)) {
+                Logger.getGlobal().warning("error char:" + c);
                 return false;
+            }
         return true;
     }
 
@@ -202,10 +208,10 @@ public class Thompson {
         for (int i = 0; i < regex.length(); i++) {
             c = regex.charAt(i);
             if (escape) { // 如果转义
-                if (!alphabet(c)) {// 检查是否在字母表中
-                    Logger.getGlobal().warning("错误字符:" + c);
-                    return null;
-                }
+                // if (!alphabet(c)) {// 检查是否在字母表中
+                // Logger.getGlobal().warning("错误字符:" + c);
+                // return null;
+                // }
                 operands.push(new NFA(c));
                 // 默认行为是连接运算
                 if (concatFlag) {
@@ -217,7 +223,7 @@ public class Thompson {
                 escape = false;
             } else if (c == '\\') {// 开始转义
                 escape = true;
-            } else if (!regexOperator(c) && alphabet(c)) {// 如果是字母表中字符
+            } else if (!regexOperator(c)) {// 如果是字母表中字符
                 operands.push(new NFA(c));// 操作数入栈
                 if (concatFlag) {
                     operators.push('.'); // '.'为连接标识符
@@ -323,7 +329,7 @@ public class Thompson {
         res = f.readReg();
         for (Pair<String, String> pair : res) {
             // 正规式解析
-            NFA tmp = compile(pair.getValue());
+            NFA tmp = compile(pair.getValue().replace("{digit}", digit).replace("{letter}", letter));
             if (tmp == null) {
                 Logger.getGlobal().warning(String.format("NFA %s 解析结果异常", pair.getValue()));
                 return null;

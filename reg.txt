@@ -1,1 +1,3 @@
-ID (a|b)*abb
+ID {letter}{letter|digit}*
+NUMBER {digit}*
+OPERATOR +|-|\*|/|&|\||!|=|>=|<=|>|<|==|!=

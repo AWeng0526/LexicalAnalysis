@@ -22,8 +22,7 @@ public class FileUtil {
     private String inputFilePath;
     private String outputFilePath;
     private String regularExpressionPath;
-    public static final String digit = "(1|2|3|4|5|6|7|8|9)";
-    public static final String letter = "(a|b|c|d|e|f|g|h|i|j|k|l|m|n|o|p|q|r|s|t|u|v|w|x|y|z)";
+    
     Logger log = Logger.getGlobal();
 
     /**
@@ -88,7 +87,7 @@ public class FileUtil {
                 Matcher m = Pattern.compile(pattern).matcher(line);
                 if (m.find()) {
                     String name = m.group(1);
-                    String value = m.group(2).replace("{digit}", digit).replace("{letter}", letter);
+                    String value = m.group(2);
                     Pair<String, String> re = new Pair<String, String>(name, value);
                     res.add(re);
                 }

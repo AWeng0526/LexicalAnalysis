@@ -11,10 +11,19 @@ public class DVertex {
     public boolean isFinal = false;
     public String type = null;
 
+    /**
+     * 
+     * @param aId DFA顶点编号
+     */
     public DVertex(int aId) {
         id = aId;
     }
 
+    /**
+     * 
+     * @param aId DFA顶点编号
+     * @param aStates 该顶点包括的NFA状态
+     */
     public DVertex(int aId, HashSet<Integer> aStates) {
         id = aId;
         states = aStates;
