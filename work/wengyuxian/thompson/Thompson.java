@@ -135,26 +135,6 @@ public class Thompson {
         // |运算生成的新NFA中会新增两个状态(新初态,新终态)
         NFA result = new NFA(n.states.size() + m.states.size() + 2);
 
-        /**
-         * 多个NFA合并时要保留终态 这里考虑到多个正规式合并时需保留终态信息 只有正规式的NFA.finalStates有元素
-         */
-        for (int i : n.finalStates) {
-            Vertex vertex = n.states.get(i);
-            int newIdx = vertex.state + 1;
-            Vertex newFinal = result.states.get(newIdx);
-            result.finalStates.add(newIdx);
-            newFinal.isFinal = true;
-            newFinal.type = vertex.type;
-        }
-        for (int i : m.finalStates) {
-            Vertex vertex = m.states.get(i);
-            int newIdx = vertex.state + n.finalState + 2;
-            Vertex newFinal = result.states.get(newIdx);
-            result.finalStates.add(newIdx);
-            newFinal.isFinal = true;
-            newFinal.type = vertex.type;
-        }
-
         // 新增初态,同时该初态指向n初态
         result.transitions.add(new Trans(0, 1, '#'));
 
@@ -321,8 +301,8 @@ public class Thompson {
      * 
      * @return 正规式求出的NFA
      */
-    public static NFA analyzeRe() {
-        NFA nfa = new NFA();
+    public static ArrayList<NFA> analyzeRe() {
+        ArrayList<NFA> ans = new ArrayList<>();
         // 默认路径为 ./reg.txt
         FileUtil f = new FileUtil();
         ArrayList<Pair<String, String>> res;
@@ -338,21 +318,14 @@ public class Thompson {
             Vertex finalState = tmp.states.get(tmp.finalState);
             finalState.isFinal = true;
             finalState.type = pair.getKey();
-            // 多个正规式合并,需要记录所有的终态
-            tmp.finalStates.add(tmp.finalState);
-            nfa = union(nfa, tmp);
+            ans.add(tmp);
         }
-        // 如果是多个正规式合并,需要将新终态记录
-        // 可以不添加,因为该新终态只能通过其他终态空跳转抵达
-        // 故在转换成DFA过程中,这个新终态会与其他终态合并为一个状态集
-        if (res.size() > 1) {
-            nfa.finalStates.add(nfa.finalState);
-        }
-        return nfa;
+
+        return ans;
     }
 
     public static void main(String[] args) {
-        NFA nfa = Thompson.analyzeRe();
-        System.out.println(nfa);
+        ArrayList<NFA> nfas = Thompson.analyzeRe();
+        System.out.println(nfas);
     }
 }

@@ -3,7 +3,8 @@ package work.wengyuxian.dfa;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.LinkedList;
-import java.util.ListIterator;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import work.wengyuxian.thompson.*;
 import work.wengyuxian.util.Alphabets;
@@ -65,13 +66,11 @@ public class DFA {
         // 检查是否为终态
         for (int i = 0; i < Dstates.size(); i++) {
             DVertex dVertex = Dstates.get(i);
-            for (int j : dVertex.states) {
-                if (nfa.finalStates.contains(j)) {
-                    dVertex.isFinal = true;
-                    dVertex.type = dVertex.type == null ? nfa.states.get(j).type : dVertex.type;
-                }
+            if (dVertex.states.contains(nfa.finalState)) {
+                Logger.getGlobal().fine(dVertex.states.toString());
+                dVertex.isFinal = true;
+                dVertex.type = nfa.states.get(nfa.finalState).type;
             }
-
         }
     }
 
@@ -108,6 +107,8 @@ public class DFA {
             for (Trans t : transitions.get(tmp)) {
                 if (t.transSymbol == '#') {
                     states.add(t.stateTo);
+                    Logger.getGlobal()
+                    .info(String.format("from %3d to %3d with %s", t.stateFrom, t.stateTo, t.transSymbol));
                 }
             }
         }
@@ -130,9 +131,13 @@ public class DFA {
     }
 
     public static void main(String[] args) {
-        NFA nfa = Thompson.analyzeRe();
-        DFA dfa = new DFA(nfa);
-        System.out.println(nfa.finalStates);
-        System.out.println(dfa);
+        Logger.getGlobal().setLevel(Level.INFO);
+        ArrayList<NFA> nfas = Thompson.analyzeRe();
+        for (NFA nfa : nfas) {
+            System.out.println(nfa);
+            DFA dfa = new DFA(nfa);
+            // System.out.println(nfa.finalState);
+            System.out.println(dfa);
+        }
     }
 }
