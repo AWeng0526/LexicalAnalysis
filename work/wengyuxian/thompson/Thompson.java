@@ -334,12 +334,12 @@ public class Thompson {
     /**
      * 主调函数
      * 
-     * @return 正规式求出的NFA
+     * @param f 文件信息类
+     * @return nfa集合
      */
-    public static ArrayList<NFA> analyzeRe() {
+    public static ArrayList<NFA> analyzeRe(FileUtil f) {
         ArrayList<NFA> ans = new ArrayList<>();
         // 默认路径为 ./reg.txt
-        FileUtil f = new FileUtil();
         ArrayList<Pair<String, String>> res;
         res = f.readReg();
         for (Pair<String, String> pair : res) {
@@ -360,7 +360,7 @@ public class Thompson {
     }
 
     public static void main(String[] args) {
-        ArrayList<NFA> nfas = Thompson.analyzeRe();
+        ArrayList<NFA> nfas = Thompson.analyzeRe(new FileUtil());
         System.out.println(nfas.get(0));
     }
 }

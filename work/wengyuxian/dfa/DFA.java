@@ -12,6 +12,7 @@ import java.util.logging.Logger;
 
 import work.wengyuxian.thompson.*;
 import work.wengyuxian.util.Alphabets;
+import work.wengyuxian.util.FileUtil;
 
 public class DFA {
     public ArrayList<DVertex> Dstates = new ArrayList<>();
@@ -222,45 +223,6 @@ public class DFA {
         return res;
     }
 
-    /**
-     * 求多个MinDFA的并集
-     * 
-     * @param minDFAs   MinDFA集合
-     * @param vertexNum 所有顶点的数目
-     * @return 合并后的dfa
-     */
-    public static MinDFA union(List<MinDFA> minDFAs, int vertexNum) {
-        // 最终DFA会多一个初态
-        MinDFA ans = new MinDFA(vertexNum + 1);
-        ans.inital = 0;
-        // 添加初态
-        ans.Dstates.add(new DVertex(0));
-        // 记录当前偏移量
-        int curr = 1;
-        for (MinDFA minDFA : minDFAs) {
-            // 合并顶点
-            for (DVertex dVertex : minDFA.Dstates) {
-                DVertex newNode;
-                if (dVertex.isFinal) {
-                    newNode = new DVertex(curr + dVertex.id, true, dVertex.type);
-                } else {
-                    newNode = new DVertex(curr + dVertex.id);
-                }
-                ans.Dstates.add(newNode);
-            }
-            // 合并状态转移
-            for (int i = 0; i < minDFA.transMaps.size(); i++) {
-                HashMap<Character, Integer> map = minDFA.transMaps.get(i);
-                for (Map.Entry<Character, Integer> entry : map.entrySet()) {
-                    ans.transMaps.get(i + curr).put(entry.getKey(), entry.getValue() + curr);
-                }
-            }
-            // 计算偏移量
-            curr += minDFA.Dstates.size();
-        }
-        return ans;
-    }
-
     @Override
     public String toString() {
         StringBuffer buffer = new StringBuffer();
@@ -278,7 +240,7 @@ public class DFA {
 
     public static void main(String[] args) {
         Logger.getGlobal().setLevel(Level.INFO);
-        ArrayList<NFA> nfas = Thompson.analyzeRe();
+        ArrayList<NFA> nfas = Thompson.analyzeRe(new FileUtil());
         ArrayList<MinDFA> dfas = new ArrayList<>();
         int num = 0;
         for (NFA nfa : nfas) {
@@ -289,9 +251,10 @@ public class DFA {
             MinDFA tmp = dfa.minimize();
             num += tmp.Dstates.size();
             dfas.add(tmp);
-            // System.out.println(tmp);
+            System.out.println(tmp);
+            // break;
         }
-        System.out.println(union(dfas, num));
+        System.out.println(MinDFA.union(dfas, num));
 
     }
 }

@@ -2,7 +2,9 @@ package work.wengyuxian.dfa;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.LinkedList;
+import java.util.List;
 import java.util.Map;
 
 public class MinDFA {
@@ -24,6 +26,62 @@ public class MinDFA {
         for (int i = 0; i < vertexNum; i++) {
             transMaps.add(new HashMap<>());
         }
+    }
+
+    /**
+     * 求多个MinDFA的并集
+     * 
+     * @param minDFAs   MinDFA集合
+     * @param vertexNum 所有顶点的数目
+     * @return 合并后的dfa
+     */
+    public static MinDFA union(List<MinDFA> minDFAs, int vertexNum) {
+        // 最终DFA会多一个初态
+        MinDFA ans = new MinDFA(vertexNum + 1);
+        ans.inital = 0;
+        // 添加初态
+        ans.Dstates.add(new DVertex(0));
+        // 记录当前偏移量
+        int curr = 1;
+        for (MinDFA minDFA : minDFAs) {
+            // Boolean hasDeleteInitial = false;
+            // 合并顶点
+            for (DVertex dVertex : minDFA.Dstates) {
+                if (dVertex.id != minDFA.inital) {
+                    DVertex newNode;
+                    int newId = curr + (dVertex.id > minDFA.inital ? (dVertex.id - 1) : dVertex.id);
+                    if (dVertex.isFinal) {
+                        newNode = new DVertex(newId, true, dVertex.type);
+                    } else {
+                        newNode = new DVertex(newId);
+                    }
+                    ans.Dstates.add(newNode);
+                }
+            }
+            // 合并状态转移
+            for (int i = 0; i < minDFA.transMaps.size(); i++) {
+                HashMap<Character, Integer> map = minDFA.transMaps.get(i);
+                for (Map.Entry<Character, Integer> entry : map.entrySet()) {
+                    Character transSymbol = entry.getKey();
+                    Integer transTo = entry.getValue();
+                    Integer transFrom = i;
+                    if (transTo > minDFA.inital) {
+                        transTo--;
+                    } else if (transTo == minDFA.inital) {
+                        transTo = -curr;
+                    }
+                    if (transFrom > minDFA.inital) {
+                        transFrom--;
+                    } else if (transFrom == minDFA.inital) {
+                        transFrom = -curr;
+                    }
+                    ans.transMaps.get(transFrom + curr).put(transSymbol, transTo + curr);
+                }
+            }
+            // 计算偏移量
+            curr += minDFA.Dstates.size() - 1;
+        }
+        return ans;
     }
 
     @Override

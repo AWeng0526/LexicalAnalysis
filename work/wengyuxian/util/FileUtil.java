@@ -22,7 +22,7 @@ public class FileUtil {
     private String inputFilePath;
     private String outputFilePath;
     private String regularExpressionPath;
-    
+
     Logger log = Logger.getGlobal();
 
     /**
@@ -52,7 +52,7 @@ public class FileUtil {
      * @throws FileNotFoundException 读取文件不存在
      * @throws IOException           IO异常
      */
-    public void readFile(StringBuffer buffer) throws FileNotFoundException, IOException {
+    public void readFile(StringBuffer buffer) {
         try (FileReader fileReader = new FileReader(inputFilePath);
                 BufferedReader br = new BufferedReader(fileReader);) {
             String temp = null;
@@ -65,10 +65,8 @@ public class FileUtil {
         // 记录日志,继续抛出异常
         catch (FileNotFoundException e) {
             log.throwing("work.wengyuxian.fileUtil.FileUtil", "readFile", e);
-            throw e;
         } catch (IOException e) {
             log.throwing("work.wengyuxian.fileUtil.FileUtil", "readFile", e);
-            throw e;
         }
     }
 
@@ -100,5 +98,33 @@ public class FileUtil {
             log.throwing("work.wengyuxian.fileUtil.FileUtil", "readFile", e);
         }
         return res;
+    }
+
+    /**
+     * 将结果写入输出文件
+     * 
+     * @param tokens 所有Token的集合
+     * @throws IOException 写入文件失败
+     */
+    public void writeFile(List<TokenNode> tokens) {
+        try {
+            // 目标文件不存在则创建
+            File file = new File(outputFilePath);
+            if (!file.exists()) {
+                file.createNewFile();
+            }
+            FileWriter fw = new FileWriter(file.getAbsoluteFile(), false);
+            BufferedWriter bw = new BufferedWriter(fw);
+            for (TokenNode tokenNode : tokens) {
+                // 若未屏蔽注释/换行符,会导致输出结果格式紊乱,故除去换行符
+                bw.write(tokenNode.toString().replace("\n", ""));
+                bw.write("\n");
+            }
+            bw.close();
+        }
+        // 记录日志,继续抛出异常
+        catch (IOException e) {
+            log.throwing("work.wengyuxian.fileUtil.FileUtil", "writeFile", e);
+        }
     }
 }

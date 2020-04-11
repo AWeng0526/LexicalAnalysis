@@ -1,3 +1,5 @@
+NUMBER {digit}+(.{digit}+|#)(E(\+|-|#){digit}+|#)
 ID {letter}({letter}|{digit})*
-NUMBER {digit}*(.{digit}+|#)(E(\+|-|#){digit}+|#)
 OPERATOR \+|-|\*|/|&|\||!|=|>=|<=|>|<|==|!=
+BRACKET \(|\)|[|]|{|}
+SEPARATOR ,|;

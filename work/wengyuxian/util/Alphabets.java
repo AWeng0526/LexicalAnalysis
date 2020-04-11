@@ -88,6 +88,8 @@ public class Alphabets {
             add('>');
             add('<');
             add('=');
+            add(';');
+            add(',');
             add('#');
         }
     };
