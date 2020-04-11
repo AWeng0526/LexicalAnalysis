@@ -251,7 +251,7 @@ public class DFA {
             MinDFA tmp = dfa.minimize();
             num += tmp.Dstates.size();
             dfas.add(tmp);
-            System.out.println(tmp);
+            // System.out.println(tmp);
             // break;
         }
         System.out.println(MinDFA.union(dfas, num));

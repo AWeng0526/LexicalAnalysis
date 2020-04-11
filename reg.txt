@@ -3,3 +3,5 @@ ID {letter}({letter}|{digit})*
 OPERATOR \+|-|\*|/|&|\||!|=|>=|<=|>|<|==|!=
 BRACKET \(|\)|[|]|{|}
 SEPARATOR ,|;
+WHITESPACE (\s)+
+NEWLINE (\n)+

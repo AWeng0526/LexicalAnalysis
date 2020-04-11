@@ -1,50 +1,74 @@
 ID            : void      
+WHITESPACE    :           
 ID            : test      
 BRACKET       : (         
 ID            : int       
+WHITESPACE    :           
 ID            : a         
 SEPARATOR     : ,         
 ID            : int       
+WHITESPACE    :           
 ID            : b         
 SEPARATOR     : ,         
 ID            : float     
+WHITESPACE    :           
 ID            : c         
 SEPARATOR     : ,         
 ID            : float     
+WHITESPACE    :           
 ID            : d         
 BRACKET       : )         
 BRACKET       : {         
+NEWLINE       :          
+WHITESPACE    :           
 ID            : int       
+WHITESPACE    :           
 ID            : x         
 SEPARATOR     : ;         
+NEWLINE       :          
+WHITESPACE    :           
 ID            : float     
+WHITESPACE    :           
 ID            : y         
 SEPARATOR     : ;         
+NEWLINE       :          
+WHITESPACE    :           
 ID            : x         
 OPERATOR      : =         
 ID            : a         
 OPERATOR      : +         
 ID            : b         
 SEPARATOR     : ;         
+NEWLINE       :          
+WHITESPACE    :           
 ID            : y         
 OPERATOR      : =         
 ID            : c         
 OPERATOR      : /         
 ID            : d         
 SEPARATOR     : ;         
+NEWLINE       :          
+WHITESPACE    :           
 ID            : if        
 BRACKET       : (         
 ID            : x         
 OPERATOR      : >         
 ID            : y         
 BRACKET       : )         
+NEWLINE       :          
+WHITESPACE    :           
 ID            : x         
 OPERATOR      : =         
 NUMBER        : 10        
 SEPARATOR     : ;         
+NEWLINE       :          
+WHITESPACE    :           
 ID            : else      
+NEWLINE       :          
+WHITESPACE    :           
 ID            : y         
 OPERATOR      : =         
 NUMBER        : 12.5      
 SEPARATOR     : ;         
+NEWLINE       :          
 BRACKET       : }         
