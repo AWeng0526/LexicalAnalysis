@@ -7,18 +7,20 @@ import java.util.Map;
 
 public class MinDFA {
 
-    public int start;// 偏移量
     public int inital;// 初态
-    public LinkedList<DVertex> Dstates = new LinkedList<>();
+    public ArrayList<DVertex> Dstates = new ArrayList<>();
     public ArrayList<HashMap<Character, Integer>> transMaps = new ArrayList<>();
 
     /**
      * 
-     * @param aStart 偏移量
+     * @param aStart    偏移量
      * @param vertexNum 顶点数目
      */
-    public MinDFA(int aStart, int vertexNum) {
-        start = aStart;
+    public MinDFA(int vertexNum) {
+        setTransMaps(vertexNum);
+    }
+
+    public void setTransMaps(int vertexNum) {
         for (int i = 0; i < vertexNum; i++) {
             transMaps.add(new HashMap<>());
         }
@@ -35,7 +37,7 @@ public class MinDFA {
         buffer.append("状态转移:\n");
         for (int i = 0; i < transMaps.size(); i++) {
             for (Map.Entry<Character, Integer> set : transMaps.get(i).entrySet()) {
-                buffer.append(String.format("(%3d ,%3c ,%3d)\n", i + start, set.getKey(), set.getValue()));
+                buffer.append(String.format("(%3d ,%3c ,%3d)\n", i, set.getKey(), set.getValue()));
             }
         }
         return buffer.toString();

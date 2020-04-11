@@ -5,6 +5,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedList;
+import java.util.List;
 import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -13,9 +14,7 @@ import work.wengyuxian.thompson.*;
 import work.wengyuxian.util.Alphabets;
 
 public class DFA {
-    // 偏移量
-    public int start;
-    public LinkedList<DVertex> Dstates = new LinkedList<>();
+    public ArrayList<DVertex> Dstates = new ArrayList<>();
     public ArrayList<Trans> Dtrans = new ArrayList<>();
     // 每个顶点的状态转移集的集合,即transitions.get(i)为顶点i的状态转移
     public ArrayList<ArrayList<Trans>> transitions;
@@ -28,9 +27,8 @@ public class DFA {
      * 
      * @param nfa 需要转化为DFA的NFA
      */
-    public DFA(NFA nfa, int startNum) {
+    public DFA(NFA nfa) {
         // 初始化
-        start = startNum;
         int vertexNum = nfa.states.size();
         transMaps = new ArrayList<>(vertexNum);
         transitions = new ArrayList<>(vertexNum);
@@ -184,20 +182,19 @@ public class DFA {
         }
 
         // 构造MinDFA
-        MinDFA minDFA = new MinDFA(start, groupMember.size());
+        MinDFA minDFA = new MinDFA(groupMember.size());
         for (int i = 0; i < groupMember.size(); i++) {// 每组选第一个顶点作为代表
             DVertex behalf = Dstates.get(groupMember.get(i).get(0));
-            // 计算顶点编号时需要加上偏移量,便于DFA的合并
-            DVertex newDVertex = new DVertex(i + start, behalf.isFinal, behalf.type);
+            DVertex newDVertex = new DVertex(i, behalf.isFinal, behalf.type);
             minDFA.Dstates.add(newDVertex);
         }
         for (Trans t : Dtrans) {// 重新添加状态转移
             int newFromId = groups.get(t.stateFrom);
             int newToId = groups.get(t.stateTo);
-            minDFA.transMaps.get(newFromId).put(t.transSymbol, newToId + start);
+            minDFA.transMaps.get(newFromId).put(t.transSymbol, newToId);
         }
         // 设置新初态
-        minDFA.inital = groups.get(0) + start;
+        minDFA.inital = groups.get(0);
         return minDFA;
     }
 
@@ -225,6 +222,45 @@ public class DFA {
         return res;
     }
 
+    /**
+     * 求多个MinDFA的并集
+     * 
+     * @param minDFAs   MinDFA集合
+     * @param vertexNum 所有顶点的数目
+     * @return 合并后的dfa
+     */
+    public static MinDFA union(List<MinDFA> minDFAs, int vertexNum) {
+        // 最终DFA会多一个初态
+        MinDFA ans = new MinDFA(vertexNum + 1);
+        ans.inital = 0;
+        // 添加初态
+        ans.Dstates.add(new DVertex(0));
+        // 记录当前偏移量
+        int curr = 1;
+        for (MinDFA minDFA : minDFAs) {
+            // 合并顶点
+            for (DVertex dVertex : minDFA.Dstates) {
+                DVertex newNode;
+                if (dVertex.isFinal) {
+                    newNode = new DVertex(curr + dVertex.id, true, dVertex.type);
+                } else {
+                    newNode = new DVertex(curr + dVertex.id);
+                }
+                ans.Dstates.add(newNode);
+            }
+            // 合并状态转移
+            for (int i = 0; i < minDFA.transMaps.size(); i++) {
+                HashMap<Character, Integer> map = minDFA.transMaps.get(i);
+                for (Map.Entry<Character, Integer> entry : map.entrySet()) {
+                    ans.transMaps.get(i + curr).put(entry.getKey(), entry.getValue() + curr);
+                }
+            }
+            // 计算偏移量
+            curr += minDFA.Dstates.size();
+        }
+        return ans;
+    }
+
     @Override
     public String toString() {
         StringBuffer buffer = new StringBuffer();
@@ -243,14 +279,19 @@ public class DFA {
     public static void main(String[] args) {
         Logger.getGlobal().setLevel(Level.INFO);
         ArrayList<NFA> nfas = Thompson.analyzeRe();
+        ArrayList<MinDFA> dfas = new ArrayList<>();
+        int num = 0;
         for (NFA nfa : nfas) {
             // System.out.println(nfa);
-            DFA dfa = new DFA(nfa, 100);
+            DFA dfa = new DFA(nfa);
             // System.out.println(nfa.finalState);
             // System.out.println(dfa);
-            System.out.println(dfa.minimize());
-            // break;
+            MinDFA tmp = dfa.minimize();
+            num += tmp.Dstates.size();
+            dfas.add(tmp);
+            // System.out.println(tmp);
         }
+        System.out.println(union(dfas, num));
 
     }
 }
