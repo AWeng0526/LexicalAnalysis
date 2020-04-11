@@ -9,7 +9,7 @@ import work.wengyuxian.util.*;
 
 public class Thompson {
 
-    public static final String digit = "(1|2|3|4|5|6|7|8|9)";
+    public static final String digit = "(0|1|2|3|4|5|6|7|8|9)";
     public static final String letter = "(a|b|c|d|e|f|g|h|i|j|k|l|m|n|o|p|q|r|s|t|u|v|w|x|y|z|A|B|C|D|E|F|G|H|I|J|K|L|M|N|O|P|Q|R|S|T|U|V|W|X|Y|Z|_)";
 
     /**
@@ -178,7 +178,7 @@ public class Thompson {
 
         Stack<Character> operators = new Stack<Character>();// 操作符栈
         Stack<NFA> operands = new Stack<NFA>();// 操作数栈
-        Stack<NFA> concatStack = new Stack<NFA>();// 连接栈
+        Stack<NFA> concatStack = new Stack<NFA>();// 连接辅助栈
         boolean concatFlag = false; // 连接标识符
         char op, c; // 当前字符
         int unpairedBracketCount = 0;// 用于计算未配对的括号符号
@@ -188,17 +188,12 @@ public class Thompson {
         for (int i = 0; i < regex.length(); i++) {
             c = regex.charAt(i);
             if (escape) { // 如果转义
-                // if (!alphabet(c)) {// 检查是否在字母表中
-                // Logger.getGlobal().warning("错误字符:" + c);
-                // return null;
-                // }
                 operands.push(new NFA(c));
-                // 默认行为是连接运算
+                // 填充连接运算符
                 if (concatFlag) {
-                    operators.push('.'); // '.'为连接标识符
-                } else {
-                    concatFlag = true;
+                    operators.add('.');
                 }
+                concatFlag = true;
                 // 转义结束
                 escape = false;
             } else if (c == '\\') {// 开始转义
@@ -206,7 +201,7 @@ public class Thompson {
             } else if (!regexOperator(c)) {// 如果是字母表中字符
                 operands.push(new NFA(c));// 操作数入栈
                 if (concatFlag) {
-                    operators.push('.'); // '.'为连接标识符
+                    operators.push('.'); // 填充连接标识符
                 } else {
                     concatFlag = true;
                 }
@@ -215,6 +210,12 @@ public class Thompson {
                     operands.push(kleene(operands.pop()));
                     concatFlag = true;
                 } else if (c == '(') {// 操作符入栈,计数器+1
+                    // 这里还需考虑一种情况:(...)(...)
+                    // 当两个括号相连时,需补充连接操作符
+                    if (concatFlag) {
+                        operators.add('.');
+                    }
+                    concatFlag = false;
                     operators.push(c);
                     unpairedBracketCount++;
                 } else if (c == '|') {// 操作符入栈,停止连接运算
@@ -252,12 +253,14 @@ public class Thompson {
                                 while (concatStack.size() > 0) {
                                     nfa1 = concat(nfa1, concatStack.pop());
                                 }
-                            } else {// 还要考虑无.运算,例如 a|b
+                            } else {// 取出左操作数
                                 nfa1 = operands.pop();
                             }
                             operands.push(union(nfa1, nfa2));
                         }
                     }
+                    operators.pop();// 弹出(
+                    concatFlag = true;// 重置连接标识符
                 }
             }
         }
@@ -266,11 +269,12 @@ public class Thompson {
         // 也可以要求正规式必须用()圈起来,这样就不需要这段代码了
         while (operators.size() > 0) {
             if (operands.empty()) {
-                // 如果有操作数而无操作符,记录错误信息
+                // 如果有操作符而无操作数,记录错误信息
                 Logger.getGlobal().warning("符号不匹配");
                 return null;
             }
             op = operators.pop();
+            // 同之前代码,此处不做注解
             if (op == '.') {
                 nfa2 = operands.pop();
                 nfa1 = operands.pop();
@@ -326,6 +330,6 @@ public class Thompson {
 
     public static void main(String[] args) {
         ArrayList<NFA> nfas = Thompson.analyzeRe();
-        System.out.println(nfas);
+        System.out.println(nfas.get(0));
     }
 }

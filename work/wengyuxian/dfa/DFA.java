@@ -1,8 +1,11 @@
 package work.wengyuxian.dfa;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedList;
+import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -10,21 +13,31 @@ import work.wengyuxian.thompson.*;
 import work.wengyuxian.util.Alphabets;
 
 public class DFA {
+    // 偏移量
+    public int start;
     public LinkedList<DVertex> Dstates = new LinkedList<>();
     public ArrayList<Trans> Dtrans = new ArrayList<>();
     // 每个顶点的状态转移集的集合,即transitions.get(i)为顶点i的状态转移
-    public ArrayList<HashSet<Trans>> transitions;
+    public ArrayList<ArrayList<Trans>> transitions;
+    // 类似transitions,transMaps为每个顶点的状态转移映射的集合
+    public ArrayList<HashMap<Character, Integer>> transMaps;
+    // 每个DFA顶点对应的组号
+    public HashMap<Integer, Integer> groups;
 
     /**
      * 
      * @param nfa 需要转化为DFA的NFA
      */
-    public DFA(NFA nfa) {
+    public DFA(NFA nfa, int startNum) {
         // 初始化
+        start = startNum;
         int vertexNum = nfa.states.size();
+        transMaps = new ArrayList<>(vertexNum);
         transitions = new ArrayList<>(vertexNum);
+        groups = new HashMap<>();
         for (int i = 0; i < vertexNum; i++) {
-            transitions.add(new HashSet<Trans>());
+            transitions.add(new ArrayList<Trans>());
+            transMaps.add(new HashMap<>());
         }
         for (Trans t : nfa.transitions) {
             transitions.get(t.stateFrom).add(t);
@@ -47,7 +60,7 @@ public class DFA {
             for (Character c : Alphabets.alphabets) {
                 HashSet<Integer> transStates = getEpsilonTrans(smove(vertex, c));
                 // 结果不为空
-                if (transStates.size() > 0) {
+                if (c != '#' && transStates.size() > 0) {
                     DVertex newDVertex = new DVertex(cnt, transStates);
                     // 由于重写了DVertex的equals方法
                     // 这里判断两个DVertex相等的方法是比较二者的states,不考虑其他属性
@@ -71,6 +84,10 @@ public class DFA {
                 dVertex.isFinal = true;
                 dVertex.type = nfa.states.get(nfa.finalState).type;
             }
+        }
+        // 为transMap赋值
+        for (Trans t : Dtrans) {
+            transMaps.get(t.stateFrom).put(t.transSymbol, t.stateTo);
         }
     }
 
@@ -107,12 +124,105 @@ public class DFA {
             for (Trans t : transitions.get(tmp)) {
                 if (t.transSymbol == '#') {
                     states.add(t.stateTo);
-                    Logger.getGlobal()
-                    .info(String.format("from %3d to %3d with %s", t.stateFrom, t.stateTo, t.transSymbol));
                 }
             }
         }
         return new HashSet<>(states);
+    }
+
+    /**
+     * 最小化DFA
+     * 
+     * @return 最小化后的minDFA
+     */
+    public MinDFA minimize() {
+        // 各个组的成员
+        ArrayList<ArrayList<Integer>> groupMember = new ArrayList<>();
+        // 第一次划分的初态集
+        ArrayList<Integer> generalSet = new ArrayList<>();
+        // 第一次划分的终态集
+        ArrayList<Integer> finalSet = new ArrayList<>();
+        for (DVertex dVertex : Dstates) {// 遍历所有顶点,终态和非终态放入对应组
+            if (dVertex.isFinal) {// 终态为group0,因为需要不断划分出非终态
+                groups.put(dVertex.id, 0);
+                finalSet.add(dVertex.id);
+            } else {
+                groups.put(dVertex.id, 1);
+                generalSet.add(dVertex.id);
+            }
+        }
+        // 记录当前的组数
+        int groupNum = 1;
+        // 由于终态为第0组,故先添加终态
+        groupMember.add(finalSet);
+        if (generalSet.size() > 0) {// 可能某些DFA只有终态,导致generalSet为空
+            groupMember.add(generalSet);
+            groupNum++;
+        }
+        for (int i = 1; i < groupNum; i++) {// 终态无需划分,故可以从1开始
+            ArrayList<Integer> members = groupMember.get(i);// 获取改组中所有成员
+            int newGroupIdx = groupNum;// 新的组别索引
+            int restart = 0;// 如果该组被划分,需要从第1组重新开始检查
+            for (int j = 1; j < members.size(); j++) {// 将该组中与members.get(0)不同组的所有结点添加到一个新组中
+                int baseState = members.get(0);
+                int compareState = members.get(j);
+                if (!inSameGroup(baseState, compareState)) {
+                    if (newGroupIdx == groupNum) {// 检查新的组别是否创建
+                        groupMember.add(new ArrayList<>());
+                        newGroupIdx++;
+                    }
+                    ArrayList<Integer> insertGroup = groupMember.get(groupNum);
+                    groupMember.get(i).removeIf(a -> a == compareState);// 在旧的组别中删除元素
+                    insertGroup.add(compareState);
+                    groups.put(compareState, groupNum);// 更新映射
+                    groupNum++;
+                    restart = -i;// 设置重新检查
+                    break;// 发现有新的组别后停止检查,从第1组开始重新检查
+                }
+            }
+            i += restart;// 若发现新的组别,i=0.由于i++,会从第1组重新开始扫描
+        }
+
+        // 构造MinDFA
+        MinDFA minDFA = new MinDFA(start, groupMember.size());
+        for (int i = 0; i < groupMember.size(); i++) {// 每组选第一个顶点作为代表
+            DVertex behalf = Dstates.get(groupMember.get(i).get(0));
+            // 计算顶点编号时需要加上偏移量,便于DFA的合并
+            DVertex newDVertex = new DVertex(i + start, behalf.isFinal, behalf.type);
+            minDFA.Dstates.add(newDVertex);
+        }
+        for (Trans t : Dtrans) {// 重新添加状态转移
+            int newFromId = groups.get(t.stateFrom);
+            int newToId = groups.get(t.stateTo);
+            minDFA.transMaps.get(newFromId).put(t.transSymbol, newToId + start);
+        }
+        // 设置新初态
+        minDFA.inital = groups.get(0) + start;
+        return minDFA;
+    }
+
+    /**
+     * 判断两个DFA结点是否同一组
+     * 
+     * @param first  结点1的索引(id)
+     * @param second 结点2的索引(id)
+     * @return
+     */
+    public boolean inSameGroup(int first, int second) {
+        // 获取二者的状态转移集
+        HashMap<Character, Integer> firstTrans = transMaps.get(first);
+        HashMap<Character, Integer> secondTrans = transMaps.get(second);
+        boolean res = true;
+        for (Character c : Alphabets.alphabets) {// 遍历字母表
+            // 为二者设置默认值,两个默认值为两不相同的复数
+            int firstEnd = firstTrans.getOrDefault(c, -1);
+            int secondEnd = secondTrans.getOrDefault(c, -2);
+            if (groups.get(firstEnd) != groups.get(secondEnd)) {
+                res = false;
+                break;
+            }
+        }
+        return res;
     }
 
     @Override
@@ -134,10 +244,13 @@ public class DFA {
         Logger.getGlobal().setLevel(Level.INFO);
         ArrayList<NFA> nfas = Thompson.analyzeRe();
         for (NFA nfa : nfas) {
-            System.out.println(nfa);
-            DFA dfa = new DFA(nfa);
+            // System.out.println(nfa);
+            DFA dfa = new DFA(nfa, 100);
             // System.out.println(nfa.finalState);
-            System.out.println(dfa);
+            // System.out.println(dfa);
+            System.out.println(dfa.minimize());
+            // break;
         }
+
     }
 }

@@ -21,12 +21,24 @@ public class DVertex {
 
     /**
      * 
-     * @param aId DFA顶点编号
+     * @param aId     DFA顶点编号
      * @param aStates 该顶点包括的NFA状态
      */
     public DVertex(int aId, HashSet<Integer> aStates) {
         id = aId;
         states = aStates;
+    }
+
+    /**
+     * 
+     * @param aId 结点编号
+     * @param aFinal 是否终态
+     * @param aType 类型
+     */
+    public DVertex(int aId, boolean aFinal, String aType) {
+        id = aId;
+        isFinal = aFinal;
+        type = aType;
     }
 
     @Override

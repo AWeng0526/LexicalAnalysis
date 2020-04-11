@@ -1,1 +1,3 @@
-ID (a|b)((a|b)|(1|3))*
+ID {letter}({letter}|{digit})*
+NUMBER {digit}*(.|#){digit}*
+OPERATOR +|-|\*|/|&|\||!|=|>=|<=|>|<|==|!=
