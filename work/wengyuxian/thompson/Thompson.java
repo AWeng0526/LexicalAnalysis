@@ -29,7 +29,7 @@ public class Thompson {
      * @return
      */
     public static boolean regexOperator(char c) {
-        return c == '(' || c == ')' || c == '*' || c == '|';
+        return c == '(' || c == ')' || c == '*' || c == '|' || c == '+';
     }
 
     /**
@@ -83,6 +83,34 @@ public class Thompson {
         // 添加剩余两条状态转移
         result.transitions.add(new Trans(n.states.size(), 1, '#'));
         result.transitions.add(new Trans(0, n.states.size() + 1, '#'));
+
+        // 设置新的终态结点索引 n.states.size()+2-1
+        result.finalState = n.states.size() + 1;
+        return result;
+    }
+
+    /**
+     * 正闭包
+     * 
+     * @param n 操作数
+     * @return 正闭包的结果
+     */
+    public static NFA positive(NFA n) {
+        // 构造新NFA,因为增添新初态终态,故容量+2
+        NFA result = new NFA(n.states.size() + 2);
+        // 添加新初态
+        result.transitions.add(new Trans(0, 1, '#'));
+
+        // 复制已有状态转移
+        for (Trans t : n.transitions) {
+            result.transitions.add(new Trans(t.stateFrom + 1, t.stateTo + 1, t.transSymbol));
+        }
+
+        // 将原来终态指向新终态
+        result.transitions.add(new Trans(n.states.size(), n.states.size() + 1, '#'));
+
+        // 添加剩余一条状态转移
+        result.transitions.add(new Trans(n.states.size(), 1, '#'));
 
         // 设置新的终态结点索引 n.states.size()+2-1
         result.finalState = n.states.size() + 1;
@@ -208,6 +236,9 @@ public class Thompson {
             } else {// 之前是操作数相关操作,现在开始操作符相关操作
                 if (c == '*') {// 操作数出栈,求*闭包后入栈
                     operands.push(kleene(operands.pop()));
+                    concatFlag = true;
+                } else if (c == '+') {// 正闭包
+                    operands.push(positive(operands.pop()));
                     concatFlag = true;
                 } else if (c == '(') {// 操作符入栈,计数器+1
                     // 这里还需考虑一种情况:(...)(...)
