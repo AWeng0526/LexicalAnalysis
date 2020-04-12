@@ -1,98 +1,23 @@
 package work.wengyuxian.util;
 
+import java.util.Arrays;
 import java.util.HashSet;
 
 public class Alphabets {
 
     // 字母表
-    public static HashSet<Character> alphabets = new HashSet<Character>() {
-        {
-            add('0');
-            add('1');
-            add('2');
-            add('3');
-            add('4');
-            add('5');
-            add('6');
-            add('7');
-            add('8');
-            add('9');
-            add('a');
-            add('b');
-            add('c');
-            add('d');
-            add('e');
-            add('d');
-            add('f');
-            add('g');
-            add('h');
-            add('i');
-            add('j');
-            add('k');
-            add('l');
-            add('m');
-            add('n');
-            add('o');
-            add('p');
-            add('q');
-            add('r');
-            add('s');
-            add('t');
-            add('u');
-            add('v');
-            add('w');
-            add('x');
-            add('y');
-            add('z');
-            add('A');
-            add('B');
-            add('C');
-            add('D');
-            add('E');
-            add('F');
-            add('G');
-            add('H');
-            add('I');
-            add('J');
-            add('K');
-            add('L');
-            add('M');
-            add('N');
-            add('O');
-            add('P');
-            add('Q');
-            add('R');
-            add('S');
-            add('T');
-            add('U');
-            add('V');
-            add('W');
-            add('X');
-            add('Y');
-            add('Z');
-            add('_');
-            add('.');
-            add('+');
-            add('-');
-            add('*');
-            add('/');
-            add('&');
-            add('!');
-            add('\\');
-            add('(');
-            add(')');
-            add('[');
-            add(']');
-            add('{');
-            add('}');
-            add('>');
-            add('<');
-            add('=');
-            add(';');
-            add(',');
-            add(' ');
-            add('\n');
-            add('#');
-        }
-    };
+    public static HashSet<Character> alphabets = new HashSet<Character>(Arrays.asList('0', '1', '2', '3', '4', '5', '6',
+            '7', '8', '9', 'a', 'b', 'c', 'd', 'e', 'd', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q',
+            'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z', 'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L',
+            'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z', '_', '.', '+', '-', '*', '/', '&',
+            '!', '\\', '(', ')', '[', ']', '{', '}', '>', '<', '=', ';', ',', ' ', '\n', '#'));
+
+    // 关键字
+    public static HashSet<String> keyWords = new HashSet<>(Arrays.asList("void", "char", "int", "float", "double",
+            "short", "long", "signed", "unsigned", "struct", "union", "enum", "typedef", "sizeof", "auto", "static",
+            "register", "extern", "const", "volatile", "return", "continue", "break", "goto", "if", "else", "switch",
+            "case", "default", "for", "do", "while"));
+
+    // 屏蔽字段
+    public static HashSet<String> shield = new HashSet<>(Arrays.asList("WHITESPACE", "NEWLINE"));
 }

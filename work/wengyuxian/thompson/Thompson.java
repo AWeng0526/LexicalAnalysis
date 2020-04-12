@@ -216,9 +216,13 @@ public class Thompson {
         for (int i = 0; i < regex.length(); i++) {
             c = regex.charAt(i);
             if (escape) { // 如果转义
-                if (c == 's') {
+                if (c == 's') {// 转义空白字符
                     operands.push(new NFA(' '));
-                } else if (c == 'n') {
+                } else if (c == 't') {
+                    operands.push(new NFA('\t'));
+                } else if (c == 'r') {
+                    operands.push(new NFA('\r'));
+                } else if (c == 'n') {// 转义换行
                     operands.push(new NFA('\n'));
                 } else {
                     operands.push(new NFA(c));

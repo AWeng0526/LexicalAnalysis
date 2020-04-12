@@ -58,7 +58,7 @@ public class FileUtil {
             String temp = null;
             // 读取所有内容,并补齐换行符
             while ((temp = br.readLine()) != null) {
-                buffer.append(temp.replaceAll("[\\s\\t\\r]", " "));
+                buffer.append(temp);
                 buffer.append("\n");
             }
         }

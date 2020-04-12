@@ -1,33 +1,33 @@
-ID            : void      
+KEYWORD       : void      
 WHITESPACE    :           
 ID            : test      
 BRACKET       : (         
-ID            : int       
+KEYWORD       : int       
 WHITESPACE    :           
 ID            : a         
 SEPARATOR     : ,         
-ID            : int       
+KEYWORD       : int       
 WHITESPACE    :           
 ID            : b         
 SEPARATOR     : ,         
-ID            : float     
+KEYWORD       : float     
 WHITESPACE    :           
 ID            : c         
 SEPARATOR     : ,         
-ID            : float     
+KEYWORD       : float     
 WHITESPACE    :           
 ID            : d         
 BRACKET       : )         
 BRACKET       : {         
 NEWLINE       :          
 WHITESPACE    :           
-ID            : int       
+KEYWORD       : int       
 WHITESPACE    :           
 ID            : x         
 SEPARATOR     : ;         
 NEWLINE       :          
 WHITESPACE    :           
-ID            : float     
+KEYWORD       : float     
 WHITESPACE    :           
 ID            : y         
 SEPARATOR     : ;         
@@ -49,7 +49,7 @@ ID            : d
 SEPARATOR     : ;         
 NEWLINE       :          
 WHITESPACE    :           
-ID            : if        
+KEYWORD       : if        
 BRACKET       : (         
 ID            : x         
 OPERATOR      : >         
@@ -63,12 +63,12 @@ NUMBER        : 10
 SEPARATOR     : ;         
 NEWLINE       :          
 WHITESPACE    :           
-ID            : else      
+KEYWORD       : else      
 NEWLINE       :          
 WHITESPACE    :           
 ID            : y         
 OPERATOR      : =         
-NUMBER        : 12.5      
+NUMBER        : 12.5E+2   
 SEPARATOR     : ;         
 NEWLINE       :          
 BRACKET       : }         

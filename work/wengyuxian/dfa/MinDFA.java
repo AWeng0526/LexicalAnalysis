@@ -2,8 +2,6 @@ package work.wengyuxian.dfa;
 
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.HashSet;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
@@ -22,6 +20,10 @@ public class MinDFA {
         setTransMaps(vertexNum);
     }
 
+    /**
+     * 初始化transMap
+     * @param vertexNum 顶点个数
+     */
     public void setTransMaps(int vertexNum) {
         for (int i = 0; i < vertexNum; i++) {
             transMaps.add(new HashMap<>());
@@ -44,11 +46,12 @@ public class MinDFA {
         // 记录当前偏移量
         int curr = 1;
         for (MinDFA minDFA : minDFAs) {
-            // Boolean hasDeleteInitial = false;
             // 合并顶点
             for (DVertex dVertex : minDFA.Dstates) {
+                // 所有DFA的初态会被合并至一个
                 if (dVertex.id != minDFA.inital) {
                     DVertex newNode;
+                    // 编号大于初态的结点,由于初态被合并,所以偏移量要减一
                     int newId = curr + (dVertex.id > minDFA.inital ? (dVertex.id - 1) : dVertex.id);
                     if (dVertex.isFinal) {
                         newNode = new DVertex(newId, true, dVertex.type);
@@ -62,6 +65,8 @@ public class MinDFA {
             for (int i = 0; i < minDFA.transMaps.size(); i++) {
                 HashMap<Character, Integer> map = minDFA.transMaps.get(i);
                 for (Map.Entry<Character, Integer> entry : map.entrySet()) {
+                    // 同上,所有的初态会被合并至一个初态
+                    // 所有结点编号大于初态的结点偏移量需要减一
                     Character transSymbol = entry.getKey();
                     Integer transTo = entry.getValue();
                     Integer transFrom = i;
