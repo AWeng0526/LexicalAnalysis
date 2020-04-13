@@ -15,8 +15,8 @@ public class AnalyzeUtil {
      * 主调函数
      */
     public static void analyze() {
-        FileUtil fileUtil = new FileUtil();
         // 默认路径为 ./reg.txt ./input.txt ./output.txt
+        FileUtil fileUtil = new FileUtil();
         ArrayList<NFA> nfas = Thompson.analyzeRe(fileUtil);
         ArrayList<MinDFA> minDFAs = new ArrayList<>();
         int num = 0;

@@ -26,7 +26,7 @@ public class FileUtil {
     Logger log = Logger.getGlobal();
 
     /**
-     * 默认构造函数,读取路径为./input.txt 输出路径为./output.txt
+     * 默认构造函数,读取路径为./input.txt 输出路径为./output.txt 正规式路径为./reg.txt
      */
     public FileUtil() {
         inputFilePath = "./input.txt";
@@ -39,6 +39,7 @@ public class FileUtil {
      * 
      * @param input  读取文件路径
      * @param output 输出文件路径
+     * @param reg 正规式文件路径
      */
     public FileUtil(String input, String output, String reg) {
         inputFilePath = input;
