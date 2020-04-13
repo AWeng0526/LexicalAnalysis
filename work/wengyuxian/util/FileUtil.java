@@ -22,7 +22,7 @@ public class FileUtil {
     private String inputFilePath;
     private String outputFilePath;
     private String regularExpressionPath;
-
+    private String outputDFAPaht = "./log/dfa.txt";
     Logger log = Logger.getGlobal();
 
     /**
@@ -32,6 +32,7 @@ public class FileUtil {
         inputFilePath = "./input.txt";
         outputFilePath = "./output.txt";
         regularExpressionPath = "./reg.txt";
+
     }
 
     /**
@@ -116,10 +117,36 @@ public class FileUtil {
             FileWriter fw = new FileWriter(file.getAbsoluteFile(), false);
             BufferedWriter bw = new BufferedWriter(fw);
             for (TokenNode tokenNode : tokens) {
-                // 若未屏蔽注释/换行符,会导致输出结果格式紊乱,故除去换行符
-                bw.write(tokenNode.toString().replace("\n", ""));
-                bw.write("\n");
+                // 屏蔽不需要的token例如空格
+                if (Alphabets.shield.contains(tokenNode.getType())) {
+                    continue;
+                }
+                bw.write(tokenNode.toString());
             }
+            bw.close();
+        }
+        // 记录日志,继续抛出异常
+        catch (IOException e) {
+            log.throwing("work.wengyuxian.fileUtil.FileUtil", "writeFile", e);
+        }
+    }
+
+    /**
+     * 写入文件,不追加
+     * @param path 文件路径
+     * @param str 写入内容
+     */
+    public void writeFile(String path, String str) {
+        try {
+            // 目标文件不存在则创建
+            File file = new File(path);
+            if (!file.exists()) {
+                file.createNewFile();
+            }
+            FileWriter fw = new FileWriter(file.getAbsoluteFile(), false);
+            BufferedWriter bw = new BufferedWriter(fw);
+            bw.write(str);
+            bw.write("\n");
             bw.close();
         }
         // 记录日志,继续抛出异常

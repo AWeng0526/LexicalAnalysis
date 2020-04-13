@@ -20,12 +20,26 @@ public class AnalyzeUtil {
         ArrayList<NFA> nfas = Thompson.analyzeRe(fileUtil);
         ArrayList<MinDFA> minDFAs = new ArrayList<>();
         int num = 0;
+        StringBuffer NFAStr = new StringBuffer();
+        StringBuffer DFAStr = new StringBuffer();
+        StringBuffer MinDFAStr = new StringBuffer();
         for (NFA nfa : nfas) {
-            minDFAs.add(new DFA(nfa).minimize());
+            DFA dfa = new DFA(nfa);
+            MinDFA minDFA = dfa.minimize();
+            minDFAs.add(minDFA);
             num += minDFAs.size() - 1;
+            // 保存相应信息
+            NFAStr.append(nfa.toString());
+            DFAStr.append(nfa.toString());
+            MinDFAStr.append(nfa.toString());
         }
+        // 写入
+        fileUtil.writeFile("./log/NFA.txt", NFAStr.toString());
+        fileUtil.writeFile("./log/DFA.txt", DFAStr.toString());
+        fileUtil.writeFile("./log/MinDFA.txt", MinDFAStr.toString());
         // 合并dfa
         MinDFA finalDfa = MinDFA.union(minDFAs, num);
+        fileUtil.writeFile("./log/FinalMinDFA.txt", finalDfa.toString());
         StringBuffer buffer = new StringBuffer();
         fileUtil.readFile(buffer);
         DVertex start = finalDfa.Dstates.get(finalDfa.inital);
@@ -33,6 +47,9 @@ public class AnalyzeUtil {
         DVertex curr = start;
         String token = "";
         ArrayList<TokenNode> tokens = new ArrayList<>();
+        // 行计数器,字符计数器
+        int charCnt = 1;
+        int lineCnt = 1;
         for (char c : buffer.toString().toCharArray()) {
             int nextId = trans.get(curr.id).getOrDefault(c, -1);
             if (nextId < 0) {// 如果状态转移为空
@@ -40,7 +57,7 @@ public class AnalyzeUtil {
                     tokens.add(new TokenNode(curr.type, token));
                     nextId = trans.get(start.id).getOrDefault(c, -1);
                     if (nextId < 0) {
-                        Logger.getGlobal().warning("error:" + c);
+                        Logger.getGlobal().warning(String.format("第%d行第%d个字符发生错误,错误单词:%s", lineCnt, charCnt, c));
                         token = "";
                         curr = start;
                     } else {
@@ -48,7 +65,8 @@ public class AnalyzeUtil {
                         curr = finalDfa.Dstates.get(nextId);
                     }
                 } else {// 非终态,报错
-                    Logger.getGlobal().warning("error:" + token.toString() + c);
+                    Logger.getGlobal()
+                            .warning(String.format("第%d行第%d个字符发生错误,错误单词:%s", lineCnt, charCnt, token.toString() + c));
                     token = "";
                     curr = start;
                 }
@@ -56,16 +74,18 @@ public class AnalyzeUtil {
                 token += c;
                 curr = finalDfa.Dstates.get(nextId);
             }
+            // 换行后行计数器+1,清空字符计数器
+            if (c == '\n') {
+                lineCnt++;
+                charCnt = 0;
+            }
+            charCnt++;
         }
 
         for (TokenNode tokenNode : tokens) {
             // 识别关键字
             if (Alphabets.keyWords.contains(tokenNode.getValue())) {
                 tokenNode.setType("KEYWORD");
-            }
-            // 屏蔽不需要的token例如空格
-            if (Alphabets.shield.contains(tokenNode.getType())) {
-                continue;
             }
         }
         fileUtil.writeFile(tokens);

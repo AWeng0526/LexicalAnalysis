@@ -22,6 +22,7 @@ public class MinDFA {
 
     /**
      * 初始化transMap
+     * 
      * @param vertexNum 顶点个数
      */
     public void setTransMaps(int vertexNum) {
