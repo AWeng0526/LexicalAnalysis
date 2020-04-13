@@ -10,7 +10,6 @@ public class NFA {
     public ArrayList<Trans> transitions;
     // 对于一个正规式而言,只会有一个终态
     public int finalState;
-    // 算法需要将多个正规式做|运算,故会产生多个终态
 
     public NFA() {
         this.states = new ArrayList<Vertex>();

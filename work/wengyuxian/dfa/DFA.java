@@ -176,7 +176,6 @@ public class DFA {
                     groups.put(compareState, groupNum);// 更新映射
                     groupNum++;
                     restart = -i;// 设置重新检查
-                    break;// 发现有新的组别后停止检查,从第1组开始重新检查
                 }
             }
             i += restart;// 若发现新的组别,i=0.由于i++,会从第1组重新开始扫描
