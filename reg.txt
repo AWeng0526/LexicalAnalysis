@@ -1,7 +1,7 @@
-NUMBER {digit}+(.{digit}+|#)(E(\+|-|#){digit}+|#)
-ID {letter}({letter}|{digit})*
-BRACKET \(|\)|[|]|{|}
-SEPARATOR ,|;
-OPERATOR \+|-|\*|/|&|\||!|=|>=|<=|>|<|==|!=
-WHITESPACE (\s|\t|\r)+
-NEWLINE (\n)+
+NUMBER          {digit}+(.{digit}+|#)(E(\+|-|#){digit}+|#)
+ID              {letter}({letter}|{digit})*
+BRACKET         \(|\)|[|]|{|}
+SEPARATOR       ,|;
+OPERATOR        \+|-|\*|/|&|\||!|=|>=|<=|>|<|==|!=
+WHITESPACE      (\s|\t|\r)+
+NEWLINE         (\n)+

@@ -83,7 +83,7 @@ public class FileUtil {
                 BufferedReader br = new BufferedReader(fileReader);) {
             String line = null;
             while ((line = br.readLine()) != null) {// 读取每行
-                String pattern = "(.*)\\s+(.*)";// 正规式的写法为:名称 正规式,必须用空格分隔
+                String pattern = "(.+?)\\s+(.*)";// 正规式的写法为:名称 正规式,必须用空格分隔
                 Matcher m = Pattern.compile(pattern).matcher(line);
                 if (m.find()) {
                     String name = m.group(1);
