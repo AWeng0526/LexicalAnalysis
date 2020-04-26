@@ -227,8 +227,8 @@ public class DFA {
         StringBuffer buffer = new StringBuffer();
         buffer.append("结点信息:\n");
         for (DVertex dVertex : Dstates) {
-            buffer.append(String.format("id: %3d   %-12s 状态集:%s\n", dVertex.id, dVertex.isFinal ? dVertex.type : "---",
-                    dVertex.states));
+            buffer.append(String.format("id:%3d\t%-12s\t状态集数目:%3d\t状态集:%s\n", dVertex.id,
+                    dVertex.isFinal ? dVertex.type : "---", dVertex.states.size(), dVertex.states));
         }
         buffer.append("状态转移:\n");
         for (Trans t : Dtrans) {

@@ -30,8 +30,8 @@ public class AnalyzeUtil {
             num += minDFAs.size() - 1;
             // 保存相应信息
             NFAStr.append(nfa.toString());
-            DFAStr.append(nfa.toString());
-            MinDFAStr.append(nfa.toString());
+            DFAStr.append(dfa.toString());
+            MinDFAStr.append(minDFA.toString());
         }
         // 写入
         fileUtil.writeFile("./log/NFA.txt", NFAStr.toString());
