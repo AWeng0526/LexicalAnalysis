@@ -1,7 +1,8 @@
 NUMBER          {digit}+(.{digit}+|#)(E(\+|-|#){digit}+|#)
 ID              {letter}({letter}|{digit})*
 BRACKET         \(|\)|[|]|{|}
-SEPARATOR       ,|;
+SEPARATOR       ,|;|:|?
+DOT             .
 OPERATOR        \+|-|\*|/|&|\||!|=|>=|<=|>|<|==|!=
 WHITESPACE      (\s|\t|\r)+
 NEWLINE         (\n)+
