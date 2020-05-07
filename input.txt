@@ -22,3 +22,9 @@ void min(int []array){
 boolean greater(int a,int b){
     return a>b?true:false;
 }
+
+void deadLoop(){
+    while(true){
+        sleep(1);
+    }
+}
