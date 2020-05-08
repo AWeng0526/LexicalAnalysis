@@ -371,6 +371,6 @@ public class Thompson {
 
     public static void main(String[] args) {
         ArrayList<NFA> nfas = Thompson.analyzeRe(new FileUtil());
-        System.out.println(nfas.get(0));
+        System.out.println(nfas.get(10));
     }
 }

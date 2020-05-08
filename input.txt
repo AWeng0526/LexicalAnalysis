@@ -3,7 +3,7 @@ void test(int a,int b,float c,float d){
     float y;
     x=a+b;
     y=c/d;
-    if(x>y)
+    if(x>=y)
         x=10;
     else
         y=12.5E+2;
@@ -27,4 +27,10 @@ void deadLoop(){
     while(true){
         sleep(1);
     }
+}
+
+void swap(double a,double b){
+    double tmp=a;
+    a=b;
+    b=tmp;
 }

@@ -3,6 +3,14 @@ ID              {letter}({letter}|{digit})*
 BRACKET         \(|\)|[|]|{|}
 SEPARATOR       ,|;|:|?
 DOT             .
-OPERATOR        \+|-|\*|/|&|\||!|=|>=|<=|>|<|==|!=
+ADD             \+
+SUB             -
+MUTI            \*
+DIV             /
+AND             &
+OR              \|
+NOT             !
+EQUAL           =|==
+COMPARE         >|<|>=|<=|!=
 WHITESPACE      (\s|\t|\r)+
 NEWLINE         (\n)+
