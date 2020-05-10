@@ -1,12 +1,8 @@
 package work.wengyuxian.dfa;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -252,7 +248,7 @@ public class DFA {
             dfas.add(tmp);
             System.out.println(tmp);
         }
-        // System.out.println(MinDFA.union(dfas, num));
+        System.out.println(MinDFA.union(dfas, num));
 
     }
 }

@@ -22,7 +22,6 @@ public class FileUtil {
     private String inputFilePath;
     private String outputFilePath;
     private String regularExpressionPath;
-    private String outputDFAPaht = "./log/dfa.txt";
     Logger log = Logger.getGlobal();
 
     /**
