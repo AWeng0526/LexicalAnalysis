@@ -155,7 +155,7 @@ public class DFA {
             groupNum++;
         }
         for (int i = 1; i < groupNum; i++) {// 终态无需划分,故可以从1开始
-            ArrayList<Integer> members = groupMember.get(i);// 获取改组中所有成员
+            ArrayList<Integer> members = groupMember.get(i);// 获取该组中所有成员
             int newGroupIdx = groupNum;// 新的组别索引
             int restart = 0;// 如果该组被划分,需要从第1组重新开始检查
             for (int j = 1; j < members.size(); j++) {// 将该组中与members.get(0)不同组的所有结点添加到一个新组中
@@ -170,39 +170,38 @@ public class DFA {
                     groupMember.get(i).removeIf(a -> a == compareState);// 在旧的组别中删除元素
                     insertGroup.add(compareState);
                     groups.put(compareState, groupNum);// 更新映射
-                    groupNum++;
                     restart = -i;// 重置索引
                 }
             }
+            groupNum = Math.max(groupNum, newGroupIdx);
             i += restart;// 若发现新的组别,i=0.由于i++,会从第1组重新开始扫描
         }
 
-        for (int i = 0; i < groupNum; i++) {// 划分终态,思路同上
-
-            ArrayList<Integer> members = groupMember.get(i);// 获取改组中所有成员
-            if (!Dstates.get(members.get(0)).isFinal) {// 如果非终态组则跳过
-                continue;
-            }
-            int newGroupIdx = groupNum;// 新的组别索引
-            int restart = 0;// 如果该组被划分,需要从第1组重新开始检查
-            for (int j = 1; j < members.size(); j++) {// 将该组中与members.get(0)不同组的所有结点添加到一个新组中
-                int baseState = members.get(0);
-                int compareState = members.get(j);
-                if (!inSameGroup(baseState, compareState)) {
-                    if (newGroupIdx == groupNum) {// 检查新的组别是否创建
-                        groupMember.add(new ArrayList<>());
-                        newGroupIdx++;
-                    }
-                    ArrayList<Integer> insertGroup = groupMember.get(groupNum);
-                    groupMember.get(i).removeIf(a -> a == compareState);// 在旧的组别中删除元素
-                    insertGroup.add(compareState);
-                    groups.put(compareState, groupNum);// 更新映射
-                    groupNum++;
-                    restart = -i - 1;// 重置索引
-                }
-            }
-            i += restart;// 若发现新的组别,i=0.由于i++,会从第1组重新开始扫描
-        }
+        // for (int i = 0; i < groupNum; i++) {// 划分终态,思路同上
+        //     ArrayList<Integer> members = groupMember.get(i);// 获取该组中所有成员
+        //     if (!Dstates.get(members.get(0)).isFinal) {// 如果非终态组则跳过
+        //         continue;
+        //     }
+        //     int newGroupIdx = groupNum;// 新的组别索引
+        //     int restart = 0;// 如果该组被划分,需要从第1组重新开始检查
+        //     for (int j = 1; j < members.size(); j++) {// 将该组中与members.get(0)不同组的所有结点添加到一个新组中
+        //         int baseState = members.get(0);
+        //         int compareState = members.get(j);
+        //         if (!inSameGroup(baseState, compareState)) {
+        //             if (newGroupIdx == groupNum) {// 检查新的组别是否创建
+        //                 groupMember.add(new ArrayList<>());
+        //                 newGroupIdx++;
+        //             }
+        //             ArrayList<Integer> insertGroup = groupMember.get(groupNum);
+        //             groupMember.get(i).removeIf(a -> a == compareState);// 在旧的组别中删除元素
+        //             insertGroup.add(compareState);
+        //             groups.put(compareState, groupNum);// 更新映射
+        //             restart = -i - 1;// 重置索引
+        //         }
+        //     }
+        //     groupNum = Math.max(newGroupIdx, groupNum);
+        //     i += restart;// 若发现新的组别,i=-1.由于i++,会从第0组重新开始扫描
+        // }
         // 构造MinDFA
         MinDFA minDFA = new MinDFA(groupMember.size());
         for (int i = 0; i < groupMember.size(); i++) {// 每组选第一个顶点作为代表
