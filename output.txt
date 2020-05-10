@@ -45,7 +45,12 @@ SEPARATOR     : ;
 KEYWORD       : else      
 ID            : y         
 EQUAL         : =         
-NUMBER        : 12.5E+2   
+NUMBER        : 12        
+DOT           : .         
+NUMBER        : 5         
+ID            : E         
+ADD           : +         
+NUMBER        : 2         
 SEPARATOR     : ;         
 BRACKET       : }         
 KEYWORD       : void      
