@@ -171,12 +171,14 @@ public class DFA {
                     insertGroup.add(compareState);
                     groups.put(compareState, groupNum);// 更新映射
                     restart = -i;// 重置索引
+                    j = 0;
                 }
             }
             groupNum = Math.max(groupNum, newGroupIdx);
             i += restart;// 若发现新的组别,i=0.由于i++,会从第1组重新开始扫描
         }
 
+        // 分组结果正确,但是状态转移有点问题,故先将其注释
         // for (int i = 0; i < groupNum; i++) {// 划分终态,思路同上
         //     ArrayList<Integer> members = groupMember.get(i);// 获取该组中所有成员
         //     if (!Dstates.get(members.get(0)).isFinal) {// 如果非终态组则跳过
@@ -197,6 +199,7 @@ public class DFA {
         //             insertGroup.add(compareState);
         //             groups.put(compareState, groupNum);// 更新映射
         //             restart = -i - 1;// 重置索引
+        //             j = 0;
         //         }
         //     }
         //     groupNum = Math.max(newGroupIdx, groupNum);
